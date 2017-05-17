@@ -38,9 +38,11 @@ class SearchView(View):
         begin_time = datetime.now()
         key_words = request.GET.get('q', '')
         page = request.GET.get('p',1)
-        s_type = request.GET.get('s_type','jobbole')
+        s_type = request.GET.get('s_type','lagou')
         if s_type=='article':
             s_type='jobbole'
+        elif s_type=='question':
+            s_type='lagou'
         try:
             page = int(page)
         except:
@@ -61,6 +63,7 @@ class SearchView(View):
                     "post_tags": ['</span>'],
                     "fields": {
                         "title": {},
+                        "tags":{},
                         "content": {}
                     }
                 }
@@ -75,11 +78,12 @@ class SearchView(View):
                 hit_dict["title"] = "".join(hit["highlight"]["title"])
             else:
                 hit_dict["title"] = hit["_source"]["title"]
-            if "content" in hit["highlight"]:
-                hit_dict["content"] = "".join(hit["highlight"]["content"])[:500]
-            else:
-                hit_dict["content"] = hit["_source"]["content"][:500]
-            hit_dict["post_at"] = hit["_source"]["post_at"]
+            if s_type != "lagou":
+                if "content" in hit["highlight"]:
+                    hit_dict["content"] = "".join(hit["highlight"]["content"])[:500]
+                else:
+                    hit_dict["content"] = hit["_source"]["content"][:500]
+                hit_dict["post_at"] = hit["_source"]["post_at"]
             hit_dict["url"] = hit["_source"]["url"]
             hit_dict["score"] = hit["_score"]
 
